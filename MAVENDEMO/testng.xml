@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suite name="MAVENDEMO">
+  <parameter name="dbconfig" value="db.properties" />
+  <parameter name="poolsize" value="10" />
   <test name="Simple Test">
-    <packages>
+   <!--  <packages>
       <package name="com.qa.test.*"/>
-    </packages>
+    </packages> -->
+    	
+	<classes>
+	  <class name="com.qa.test.TestParameterXML" />
+	</classes>
   </test>
 </suite>
