@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suite name="LennoxMaven">
+	<parameter name="browserType" value="firefox" />
+    <parameter name="appURL" value="http://integr8a.trclient.com/testing/" />
+ <!--<test name="Validate the title of the url">
+ 		<classes>
+           <class name="com.pack.test.TitleTest" />   
+       </classes>
+       
+     </test>
+    <test name ="Validate Form" >
+    	<classes>
+           <class name="com.pack.test.FormErrorValidation" />   
+    	</classes>
+   </test>   
+   <test name ="update single Entry in the Form" >
+   		<classes>
+           <class name="com.pack.test.TestForm" />   
+   		 </classes>
+   </test>-->
+   
+   <test name ="update multiple Entry in the Form" >
+   		<classes>
+           <class name="com.pack.test.TestFormMultipleEntry" />   
+   		 </classes>
+   </test>
+   
+</suite>
