@@ -1,7 +1,7 @@
 package com.pack.test;
 
 import org.openqa.selenium.WebDriver;
-import org.testng.annotations.BeforeClass;
+
 import org.testng.annotations.Test;
 
 import com.pack.obj.BasePageRepository;
@@ -12,19 +12,19 @@ import com.pack.obj.TestBaseSetup;
 public class FormErrorValidation extends TestBaseSetup{
 
 private WebDriver driver;
-private BasePageRepository basePage;
+
 	
-	@BeforeClass 
+	
 	public void setup() throws InterruptedException
 	{
-		driver=getDriver();
+		System.out.println("Start the setup");
 	}
 	
 	@Test
 	public void FormValidation() {
 		
 		System.out.println("Form page test...");
-		basePage = new BasePageRepository(driver);
+		BasePageRepository basePage = new BasePageRepository();
 		basePage.Submit_ErrorValidationForm();
 		
 		

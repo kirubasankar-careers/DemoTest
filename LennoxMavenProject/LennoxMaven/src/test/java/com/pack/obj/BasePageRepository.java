@@ -2,13 +2,20 @@ package com.pack.obj;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.xml.crypto.dsig.spec.XSLTTransformParameterSpec;
@@ -19,10 +26,12 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.sl.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openqa.selenium.By;
@@ -30,23 +39,26 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
 import org.testng.Reporter;
-
+import org.testng.annotations.DataProvider;
 import org.testng.Assert;
 
 
 public class BasePageRepository extends TestBaseSetup{
 	
 	
-	int i=0;
-		
-	WebDriver driver;
-	String filePath="C:\\eclipse\\git\\LennoxMavenProject\\LennoxMaven\\inputdata.xlsx";
+	
+	public static String filePath="C:\\eclipse\\git\\LennoxMavenProject\\LennoxMaven\\inputdata.xlsx";
 	String fileExtension;
-	FileInputStream fileInputStream;
+	public FileInputStream fileInputStream=null;
+	private static XSSFWorkbook workbook=null;
+	private static XSSFSheet sheet=null;
+	private static XSSFRow row=null;
+	private static XSSFCell cell=null;
 	String[] alpha =null;
 	Iterator<Row> rowIterator =null;
+	public static DataFormatter dataFormatter;
 	
-
+	int i=0;	
 	private By FirstName=By.id("firstname");
 	private By LastName=By.id("lastname");
 	private By Email=By.xpath("//input[@data-tractionapi-type=\"EMAIL\"]");
@@ -70,38 +82,34 @@ public class BasePageRepository extends TestBaseSetup{
 	private By Postcode_errorValidation=By.cssSelector("#postcode+.error_validation");
 	private By DateOfBirth_errorValidation=By.cssSelector("#dob+.error_validation");
 	private By checkbox_errorValidation=By.cssSelector("div[data-tractionapi-inject-error-field='TermsNCond1']");
-	WebElement form_fName;
-	WebElement form_lName;
-	WebElement form_Email;
-	WebElement form_mobile;
-	WebElement form_Adress;
-	WebElement form_SubUrb;
-	WebElement form_selectState;
-	WebElement form_postcode;
-	WebElement form_DateOfBirth;
-	WebElement form_ChkAgreement;
-	WebElement form_submitButton;
-	WebElement form_submitedForm;
-	WebElement form_ErrorMessageLabel;	
-	WebElement formerrorValidation_0;
-	WebElement formerrorValidation_1;
-	WebElement formerrorValidation_2;
-	WebElement formerrorValidation_3;
-	WebElement formerrorValidation_4;
-	WebElement formerrorValidation_5;
-	WebElement formerrorValidation_6;
-	WebElement formerrorValidation_7;
-	WebElement formerrorValidation_8;
-	WebElement formerrorValidation_9;
+	private static WebElement form_fName;
+	private static WebElement form_lName;
+	private static WebElement form_Email;
+	private static WebElement form_mobile;
+	private static WebElement form_Adress;
+	private static WebElement form_SubUrb;
+	private static WebElement form_selectState;
+	private static WebElement form_postcode;
+	private static WebElement form_DateOfBirth;
+	private static WebElement form_ChkAgreement;
+	private static WebElement form_submitButton;
+	private static WebElement form_submitedForm;
+	private static WebElement form_ErrorMessageLabel;	
+	private static WebElement formerrorValidation_0;
+	private static WebElement formerrorValidation_1;
+	private static WebElement formerrorValidation_2;
+	private static WebElement formerrorValidation_3;
+	private static WebElement formerrorValidation_4;
+	private static WebElement formerrorValidation_5;
+	private static WebElement formerrorValidation_6;
+	private static WebElement formerrorValidation_7;
+	private static WebElement formerrorValidation_8;
+	private static WebElement formerrorValidation_9;
 	
-	public WebDriver actingDriver(WebDriver driver)
-	{
-		return driver;
-	}
-	
-	 public BasePageRepository(WebDriver driver) {
+	 public BasePageRepository() {
 			
-		this.driver = driver;
+		BasePageRepository.driver = getDriver();
+		
 		form_fName=driver.findElement(FirstName);
 		form_lName=driver.findElement(LastName);
 		form_Email=driver.findElement(Email);
@@ -127,13 +135,72 @@ public class BasePageRepository extends TestBaseSetup{
 		formerrorValidation_9 =driver.findElement(checkbox_errorValidation);
 		}
 	 
-	 public BasePageRepository() {
-		 
-			this.driver = getDriver();
-			
-	 }
-	 
- 
+	@DataProvider(name="data")
+	public static Object[][] retrieveDataFromExcel() throws IOException
+	{
+		
+		File file = new File(filePath);
+	
+		FileInputStream fileInput= new FileInputStream(file);
+		
+		workbook= new XSSFWorkbook(fileInput);
+		sheet =workbook.getSheetAt(0);
+		workbook.close();
+		int rowcount=sheet.getLastRowNum();
+	    int columnCount= sheet.getRow(0).getLastCellNum();
+	    
+	    //define object array
+	    Object[][] obj = new Object[rowcount][1];
+
+	    for(int i=0;i<rowcount;i++) 
+	    {
+	    	Map<Object,Object> datamap= new HashMap<Object,Object>();
+	    	
+	    	for (int j=0; j<columnCount;j++)
+	    	{
+	    		XSSFCell rowData=sheet.getRow(0).getCell(j);
+	    		//read cell data and store it to the map
+	    		if (rowData.getStringCellValue().contains("dateOfBirth"))
+	    		{
+	    			
+	    			XSSFCell cellDate=sheet.getRow(i+1).getCell(j);
+	    			Date dateStr=cellDate.getDateCellValue();
+	    			DateFormat formatter = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy");
+	    			Date date = dateStr;
+	    			System.out.println(date);        
+
+	    			Calendar cal = Calendar.getInstance();
+	    			cal.setTime(date);
+	    			String formatedDate = cal.get(Calendar.DATE) + "/" + (cal.get(Calendar.MONTH) + 1) + "/" + cal.get(Calendar.YEAR);
+	    			datamap.put(sheet.getRow(0).getCell(j).toString(),formatedDate);
+	    			
+	    		}else
+	    		{
+	    		datamap.put(sheet.getRow(0).getCell(j).toString(), sheet.getRow(i+1).getCell(j));
+	    		}
+	    		
+	    	}
+	    	
+	    	obj[i][0] =datamap;
+	    	
+	    }
+	   // mydata.add((HashMap<Object, Object>) datamap);
+	    
+	    return obj;
+	}
+	
+	public static String  convertToDate(String Date) throws ParseException{
+		String dateInString = Date;
+        dateInString = dateInString.substring(0, 9);
+        Date date = null;
+        try {
+            date = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH).parse(dateInString);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        String newFormat = new SimpleDateFormat("dd-MM-yy").format(date);
+        return newFormat;
+    }
 	
 	public void Submit_TestingForm(String firstName,String lastName,String email,String mobile,String address,String suburb,String selectstate,String postcode,String dateOfBirth)
 	{
@@ -148,12 +215,13 @@ public class BasePageRepository extends TestBaseSetup{
 			selectState(form_selectState,selectstate);
 			inputText(form_postcode, postcode);
 			String expectedDateFormat=dateOfBirth;
-			if(expectedDateFormat.contains("/"))
+			/*if(expectedDateFormat.contains("/"))
 				
 			{
 			expectedDateFormat=dateOfBirth.replace("/", "-");
 			}
-			String[] date=dateOfBirth.split("-",3);
+	*/
+			String[] date=dateOfBirth.split("/",3);
 			System.out.println("year:"+date[2]);
 			if(Integer.parseInt(date[2])>1999)
 			{
@@ -175,6 +243,7 @@ public class BasePageRepository extends TestBaseSetup{
 			Click(form_submitButton);
 			Thread.sleep(2000);
 			verifyCompetitionCompleted();
+			driver.navigate().refresh();
 			}
 		}
 		catch(Exception ex)
@@ -183,93 +252,14 @@ public class BasePageRepository extends TestBaseSetup{
 		}
 	}
 	
-	public void importDataFromExcel() throws IOException
-	{
-		
-		  Map<String,String> ExcelData=new LinkedHashMap<String, String>();
-			fileInputStream = new FileInputStream(new File(filePath));
-			fileExtension = filePath.substring(filePath.indexOf("."));
-        	System.out.println(fileExtension);
-        	if(fileExtension.equals(".xls")){
-            HSSFWorkbook workbook  = new HSSFWorkbook(new POIFSFileSystem(fileInputStream));
-            HSSFSheet sheet=workbook.getSheetAt(0);
-            rowIterator = sheet.iterator();
-            }
-            else if(fileExtension.equals(".xlsx")){
-            XSSFWorkbook workbook  = new XSSFWorkbook(fileInputStream);
-            XSSFSheet sheet = workbook.getSheetAt(0);
-            rowIterator = sheet.iterator();
-            }
-            else {
-            System.out.println("Wrong File Type");
-            } 
-        
-        try {
-  
-        while(rowIterator.hasNext())
-        {
-        
-        	Row row = (Row) rowIterator.next();
-        	Iterator<Cell> cellIterator = row.cellIterator();
-            
-        	while (cellIterator.hasNext())
-        	{
-        	
-              	Cell cell = cellIterator.next();
-               
-              	
-              	if (cell.getCellType() == XSSFCell.CELL_TYPE_STRING) {
-					System.out.print(cell.getStringCellValue() + " ");
-					if(cell.getStringCellValue().contains("dateOfBirth"))
-					{
-						
-						DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-						
-						Date retrievedDate = cellIterator.next().getDateCellValue();
-						String reportDate = df.format(retrievedDate);
-						ExcelData.put(cell.getStringCellValue(),reportDate);
-						
-					}
-					else
-					{
-					ExcelData.put(cell.getStringCellValue(),cellIterator.next().getStringCellValue());
-					}
-				} else if (cell.getCellType() == XSSFCell.CELL_TYPE_NUMERIC) {
-					System.out.print(cell.getNumericCellValue() + " ");
-					ExcelData.put(cell.getStringCellValue(),cellIterator.next().getStringCellValue());
-				} else if (cell.getCellType() == XSSFCell.CELL_TYPE_BOOLEAN) {
-					System.out.print(cell.getBooleanCellValue() + " ");
-					ExcelData.put(cell.getStringCellValue(),cellIterator.next().getStringCellValue());
-				}else if (cell.getCellType() == XSSFCell.CELL_TYPE_FORMULA) {
-					System.out.print(cell.getBooleanCellValue() + " ");
-					ExcelData.put(cell.getStringCellValue(),cellIterator.next().getStringCellValue());
 
-				}
-              	
-        		
-        		}
-        	}
-        }
-        catch (Exception e)
-        {
-        	e.getCause().printStackTrace();
-        }
-        for (int alpha=1;alpha<ExcelData.size();alpha++)
-		{
-        	//String firstName,String lastName,String email,String mobile,String address,String suburb,String selectstate,String postcode,String dateOfBirth)
-        	//FirstName	LastName	Email	Mobile	Address	suburb	state	postcode	dateOfBirth
-
-        	Submit_TestingForm(ExcelData.get("FirstName"),ExcelData.get("LastName"),ExcelData.get("Email"),ExcelData.get("Mobile"),ExcelData.get("Address"),ExcelData.get("suburb"),ExcelData.get("state"),ExcelData.get("postcode"),ExcelData.get("dateOfBirth"));
-		}
-        
-        
-	}
-	public void verifyCompetitionCompleted()
+	
+	public static void verifyCompetitionCompleted()
 	{
 		Assert.assertEquals(getDobErrorMessage(form_submitedForm), "Thank you for entering the competition.");
 	}
 	
-	public void Submit_ErrorValidationForm()
+	public static void Submit_ErrorValidationForm()
 	{
 		try
 		{
@@ -321,23 +311,24 @@ public class BasePageRepository extends TestBaseSetup{
 			System.out.println(ex.getStackTrace());
 		}
 		}
-	public void ErrorValidation(WebElement Elem,String inputText,String Label) 
+	public static void ErrorValidation(WebElement Elem,String inputText,String Label) 
 	{
 		inputText(Elem,inputText,Label, true);
 	}
 	
 	
 	
-	public void inputText(WebElement Elem,String inputText)
+	public static void inputText(WebElement Elem,String inputText)
 	{
 		if(Elem.isDisplayed())
 		{
+			Elem.clear();
 			Elem.sendKeys(inputText);
 			Reporter.log(inputText+"has been successfully updated");
 		}
 	}
 	
-	public void inputText(WebElement Elem,String inputText,String Label, Boolean emptyvalidation)
+	public static void inputText(WebElement Elem,String inputText,String Label, Boolean emptyvalidation)
 	{
 		
 		if(inputText.isEmpty() && emptyvalidation==true && Label!="State" && Label!="Terms and Condition")
@@ -356,7 +347,7 @@ public class BasePageRepository extends TestBaseSetup{
 		}
 	}
 	
-	public void Click(WebElement Elem)
+	public static void Click(WebElement Elem)
 	{
 		if(Elem.isDisplayed()||Elem.isEnabled())
 		{
@@ -364,7 +355,7 @@ public class BasePageRepository extends TestBaseSetup{
 		}
 	}
 	
-	public void disableButton(WebElement Elem)
+	public static void disableButton(WebElement Elem)
 	{
 		if(!Elem.isEnabled())
 		{
@@ -374,7 +365,7 @@ public class BasePageRepository extends TestBaseSetup{
 		}
 	}
 	
-	public void check(WebElement Elem)
+	public static void check(WebElement Elem)
 	{
 		if(!Elem.isSelected())
 		{
@@ -383,32 +374,34 @@ public class BasePageRepository extends TestBaseSetup{
 		}
 	}
 	
-	public void selectState(WebElement Elem, String StateName)
+	public static void selectState(WebElement Elem, String StateName)
 	{
 		Select state=new Select(Elem);
 		state.selectByValue(StateName);
 	}
 	
-	public String getPageTitle()
+	public static String getPageTitle()
 	{
 		String title;
 		title=driver.getTitle();
 		return title;
 	}
 	
-	public String getDobErrorMessage(WebElement Elem)
+	public  static String getDobErrorMessage(WebElement Elem)
 	{
 		return Elem.getText();
 	}
 	
-	public boolean verifyPageTitle()
+	public static boolean verifyPageTitle()
 	{
 		String expectedPageTitle="Testing form";
 		return expectedPageTitle.contains(getPageTitle());
 	}
 	
 	
-	public boolean DOBValidation(WebElement Elem)
+	
+	
+	public static boolean DOBValidation(WebElement Elem)
 	{
 		String errorNotification="You need to be 18 and above to enter this competition.";
 		return errorNotification.contains(getDobErrorMessage(Elem));

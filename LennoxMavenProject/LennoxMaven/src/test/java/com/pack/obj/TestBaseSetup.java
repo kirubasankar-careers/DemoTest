@@ -15,7 +15,7 @@ import org.testng.annotations.Parameters;
 public class TestBaseSetup {
 
 	
-   public WebDriver driver;
+   public static WebDriver driver;
    String chromeDriverPath="C:\\kiruba\\driver\\latest_chrome_Driver\\";
    String firefoxDriverPath="C:\\kiruba\\driver\\firefox\\v19\\";
 	
@@ -91,7 +91,7 @@ public class TestBaseSetup {
 		}
 	}
 	
-	public WebDriver getDriver()
+	public  WebDriver getDriver()
 	{
 		return driver;
 	}
