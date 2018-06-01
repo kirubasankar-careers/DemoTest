@@ -1,17 +1,12 @@
 package com.pack.test;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Map;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import com.pack.obj.BasePageRepository;
 import com.pack.obj.TestBaseSetup;
-import java.text.SimpleDateFormat;  
-import java.util.Date; 
 
 public class TestFormMultipleEntry extends TestBaseSetup
 {

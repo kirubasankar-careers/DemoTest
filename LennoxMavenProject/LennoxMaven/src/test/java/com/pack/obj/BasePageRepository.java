@@ -2,40 +2,21 @@ package com.pack.obj;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
-import javax.xml.crypto.dsig.spec.XSLTTransformParameterSpec;
-
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
-import org.apache.poi.sl.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormatter;
-import org.apache.poi.ss.usermodel.DateUtil;
-import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
 import org.testng.Reporter;
@@ -43,17 +24,16 @@ import org.testng.annotations.DataProvider;
 import org.testng.Assert;
 
 
+
 public class BasePageRepository extends TestBaseSetup{
 	
 	
-	
-	public static String filePath="C:\\eclipse\\git\\LennoxMavenProject\\LennoxMaven\\inputdata.xlsx";
+	//static Path filePath1 = FileSystems.getDefault().getPath("inputdata.xlsx");
+	public static String filePath=DefaultPath+"\\inputdata.xlsx";
 	String fileExtension;
 	public FileInputStream fileInputStream=null;
 	private static XSSFWorkbook workbook=null;
 	private static XSSFSheet sheet=null;
-	private static XSSFRow row=null;
-	private static XSSFCell cell=null;
 	String[] alpha =null;
 	Iterator<Row> rowIterator =null;
 	public static DataFormatter dataFormatter;
@@ -165,7 +145,7 @@ public class BasePageRepository extends TestBaseSetup{
 	    			
 	    			XSSFCell cellDate=sheet.getRow(i+1).getCell(j);
 	    			Date dateStr=cellDate.getDateCellValue();
-	    			DateFormat formatter = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy");
+	    			//DateFormat formatter = new SimpleDateFormat("E MMM dd HH:mm:ss Z yyyy");
 	    			Date date = dateStr;
 	    			System.out.println(date);        
 
@@ -259,7 +239,7 @@ public class BasePageRepository extends TestBaseSetup{
 		Assert.assertEquals(getDobErrorMessage(form_submitedForm), "Thank you for entering the competition.");
 	}
 	
-	public static void Submit_ErrorValidationForm()
+	public void Submit_ErrorValidationForm()
 	{
 		try
 		{

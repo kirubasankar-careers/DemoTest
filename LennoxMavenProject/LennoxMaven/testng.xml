@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>your.group.id</groupId>
+    <artifactId>your-artifact-id</artifactId>
+    <version>your-version</version>
+
 <suite name="LennoxMaven">
 	<parameter name="browserType" value="firefox" />
     <parameter name="appURL" value="http://integr8a.trclient.com/testing/" />
@@ -8,7 +15,7 @@
        </classes>
        
      </test>
-    <test name ="Validate Form" >
+   <test name ="Validate Form" >
     	<classes>
            <class name="com.pack.test.FormErrorValidation" />   
     	</classes>
@@ -26,3 +33,5 @@
    </test>
    
 </suite>
+
+</project>
